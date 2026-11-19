@@ -1,0 +1,54 @@
+---
+# Déploiement cPanel — Sublime CI-USA
+#
+# cPanel clone le dépôt dans /home/ciusatou/repositories/... puis exécute
+# ces tâches quand tu cliques sur « Deploy HEAD Commit ».
+#
+# RÈGLE IMPORTANTE : on COPIE, on ne synchronise jamais avec suppression.
+# Les 59 photos d'hôtels et de partenaires (assets/img/2025*, 2026*) ne
+# sont PAS dans le dépôt : elles vivent uniquement sur le serveur. Une
+# synchronisation avec suppression les effacerait ; les `cp` ci-dessous
+# les laissent intactes.
+#
+# Noter la forme `dossier/.` : elle copie le CONTENU du dossier dans la
+# cible. Sans le `/.`, cp créerait public_html/assets/assets.
+
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/ciusatou/public_html
+
+    # --- pages ---
+    - /bin/cp -f *.html $DEPLOYPATH/
+    - /bin/mkdir -p $DEPLOYPATH/fr
+    - /bin/cp -Rf fr/. $DEPLOYPATH/fr/
+
+    # --- ressources (merge, sans suppression) ---
+    - /bin/mkdir -p $DEPLOYPATH/assets
+    - /bin/cp -Rf assets/. $DEPLOYPATH/assets/
+
+    # --- gabarits d'e-mail (pour l'aperçu navigateur avant envoi) ---
+    - /bin/mkdir -p $DEPLOYPATH/email
+    - /bin/cp -Rf email/. $DEPLOYPATH/email/
+
+    # --- endpoints PHP ---
+    - /bin/mkdir -p $DEPLOYPATH/api
+    - /bin/cp -Rf api/. $DEPLOYPATH/api/
+
+    # --- SEO ---
+    # NOTE : le .htaccess n'est volontairement PAS déployé. Celui qui tourne
+    # sur le serveur a été réglé à la main (règles de réécriture, HTTPS) et
+    # l'écraser à chaque déploiement a déjà provoqué une erreur 500. Tu le
+    # modifies directement dans cPanel. Pour le versionner un jour : copie
+    # le fichier du serveur dans le dépôt, puis rajoute la ligne de copie.
+    - /bin/cp -f robots.txt $DEPLOYPATH/
+    - /bin/cp -f sitemap.xml $DEPLOYPATH/
+
+    # --- dossier d'écriture (créé une fois, jamais écrasé) ---
+    - /bin/mkdir -p $DEPLOYPATH/storage
+    - /bin/chmod 755 $DEPLOYPATH/storage
+
+    # --- permissions ---
+    - /bin/find $DEPLOYPATH -type d -exec chmod 755 {} +
+    - /bin/find $DEPLOYPATH -type f -name "*.html" -exec chmod 644 {} +
+    - /bin/find $DEPLOYPATH/assets -type f -exec chmod 644 {} +
+    - /bin/chmod 644 $DEPLOYPATH/api/*.php

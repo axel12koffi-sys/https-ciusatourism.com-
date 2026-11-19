@@ -1,0 +1,28 @@
+# --- Photos qui n'appartiennent pas au dépôt ---------------------------
+# Les 59 images récupérées de l'ancien WordPress vivent uniquement sur le
+# serveur. Elles ne sont pas versionnées, et le déploiement ne les touche
+# pas. Si tu en copies localement, git les ignore.
+assets/img/2025*
+assets/img/2026*
+
+# --- Généré / temporaire ----------------------------------------------
+__pycache__/
+*.pyc
+# version PHP générée par build.py --php
+php/
+# journal des demandes du formulaire
+storage/*.log
+storage/*.txt
+
+# --- Scripts de maintenance à usage unique -----------------------------
+# Ils ne doivent jamais partir en production.
+fix-site.php
+check-images.php
+check.php
+restore-links.php
+collect-images.php
+
+# --- Système ------------------------------------------------------------
+.DS_Store
+Thumbs.db
+*.zip

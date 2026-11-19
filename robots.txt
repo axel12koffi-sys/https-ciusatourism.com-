@@ -1,0 +1,29 @@
+# ciusatourism.com
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /storage/
+Disallow: /partials/
+Disallow: /tools/
+Disallow: /404.html
+
+# Moissonneurs commerciaux : ils consomment de la bande passante sans
+# rien apporter. Ceux qui respectent ce fichier s'arrêtent ici ; les
+# autres sont bloqués par le .htaccess (bloc 7).
+User-agent: AhrefsBot
+Disallow: /
+User-agent: SemrushBot
+Disallow: /
+User-agent: MJ12bot
+Disallow: /
+User-agent: DotBot
+Disallow: /
+User-agent: BLEXBot
+Disallow: /
+User-agent: DataForSeoBot
+Disallow: /
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://ciusatourism.com/sitemap.xml
