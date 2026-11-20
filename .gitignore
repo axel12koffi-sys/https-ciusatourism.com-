@@ -26,3 +26,9 @@ collect-images.php
 .DS_Store
 Thumbs.db
 *.zip
+
+# --- Données privées (mots de passe, réponses RSVP) -------------------
+# Elles vivent sur le serveur, hors de public_html. Jamais dans le dépôt.
+sublime-private/
+config.php
+!setup/config.sample.php

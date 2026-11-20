@@ -30,6 +30,14 @@ deployment:
     - /bin/mkdir -p $DEPLOYPATH/email
     - /bin/cp -Rf email/. $DEPLOYPATH/email/
 
+    # --- administration (RSVP + envoi des invitations) ---
+    # La configuration et les données ne sont PAS ici : elles vivent dans
+    # /home/ciusatou/sublime-private/, hors du web et hors du dépôt.
+    - /bin/mkdir -p /home/ciusatou/sublime-private
+    - /bin/chmod 700 /home/ciusatou/sublime-private
+    - /bin/mkdir -p $DEPLOYPATH/admin
+    - /bin/cp -Rf admin/. $DEPLOYPATH/admin/
+
     # --- endpoints PHP ---
     - /bin/mkdir -p $DEPLOYPATH/api
     - /bin/cp -Rf api/. $DEPLOYPATH/api/
@@ -51,4 +59,4 @@ deployment:
     - /bin/find $DEPLOYPATH -type d -exec chmod 755 {} +
     - /bin/find $DEPLOYPATH -type f -name "*.html" -exec chmod 644 {} +
     - /bin/find $DEPLOYPATH/assets -type f -exec chmod 644 {} +
-    - /bin/chmod 644 $DEPLOYPATH/api/*.php
+    - /bin/find $DEPLOYPATH/api $DEPLOYPATH/admin -type f -exec chmod 644 {} +

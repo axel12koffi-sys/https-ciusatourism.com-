@@ -366,6 +366,96 @@
   })();
 
   /* ---------------------------------------------------------
+     13b. RSVP (page événement) → /api/rsvp.php
+     Messages lus dans les data-* du formulaire : ils sont traduits
+     avec la page, le script reste unique pour les deux langues.
+     --------------------------------------------------------- */
+  (function rsvpForm() {
+    var f = $('#rsvpForm');
+    if (!f) return;
+    var ok = $('#rsvpOk'), ko = $('#rsvpKo'), d = f.dataset;
+    var started = $('.started', f);
+    if (started) started.value = String(Date.now());
+
+    /* lien personnalisé de l'invitation : ?n=Nom&e=adresse */
+    try {
+      var q = new URLSearchParams(location.search);
+      /* f.name désigne le nom du formulaire, pas le champ : on passe par elements */
+      var fn = f.elements.namedItem('name'), fe = f.elements.namedItem('email');
+      if (q.get('n') && !fn.value) fn.value = q.get('n').slice(0, 100);
+      if (q.get('e') && !fe.value) fe.value = q.get('e').slice(0, 160);
+    } catch (e) {}
+
+    /* « Non » : la liste des participants n'a plus lieu d'être */
+    function sync() {
+      var v = (f.querySelector('input[name=attending]:checked') || {}).value;
+      f.classList.toggle('is-hidden-guests', v === 'no');
+    }
+    $$('input[name=attending]', f).forEach(function (r) {
+      r.addEventListener('change', function () { $('#attField').classList.remove('err'); sync(); });
+    });
+
+    function invalid(field) {
+      if (field.id === 'attField') return !f.querySelector('input[name=attending]:checked');
+      var el = $('input,select,textarea', field);
+      if (!el) return false;
+      var v = el.value.trim();
+      if (el.required && !v) return true;
+      if (el.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return true;
+      return false;
+    }
+    $$('.field', f).forEach(function (field) {
+      var el = $('input:not([type=radio]),select,textarea', field);
+      if (el) el.addEventListener('input', function () { field.classList.remove('err'); });
+    });
+
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      ok.classList.remove('on'); ko.classList.remove('on');
+      var bad = 0;
+      $$('.field', f).forEach(function (field) {
+        var x = invalid(field);
+        field.classList.toggle('err', x);
+        if (x) bad++;
+      });
+      if (bad) {
+        var first = $('.field.err', f);
+        first.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: 'center' });
+        var el = $('input,select,textarea', first); if (el) el.focus({ preventScroll: true });
+        return;
+      }
+      var btn = $('button[type=submit]', f), label = btn.innerHTML;
+      btn.textContent = d.sending; btn.disabled = true;
+
+      function fail(m) { btn.innerHTML = label; btn.disabled = false; ko.textContent = m; ko.classList.add('on'); }
+
+      fetch('/api/rsvp.php', { method: 'POST', body: new FormData(f), credentials: 'same-origin' })
+        .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+        .then(function (r) {
+          if (r.j.ok) {
+            btn.innerHTML = label; btn.disabled = false;
+            ok.textContent = r.j.attending === 'no' ? d.okNo : d.okYes;
+            ok.classList.add('on');
+            f.reset(); sync();
+            if (started) started.value = String(Date.now());
+            ok.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: 'center' });
+            return;
+          }
+          if (r.s === 429) return fail(d.errRate);
+          if (r.j.fields) {
+            r.j.fields.forEach(function (n) {
+              var el = f.querySelector('[name="' + n + '"]');
+              if (el) el.closest('.field').classList.add('err');
+            });
+            return fail(d.errFields);
+          }
+          fail(d.errServer);
+        })
+        .catch(function () { fail(d.errNet); });
+    });
+  })();
+
+  /* ---------------------------------------------------------
      14. NEWSLETTER (footer, toutes les pages)
      --------------------------------------------------------- */
   (function newsletter() {

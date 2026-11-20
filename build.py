@@ -1327,12 +1327,9 @@ def check_fr():
 
 # ============================================================ ÉVÉNEMENT
 # Page d'un événement ponctuel. Pour en ajouter un autre, dupliquer le bloc
-# et changer les constantes ci-dessous. Le bouton RSVP ouvre le formulaire
-# Google dans un nouvel onglet : pas d'iframe, qui serait bloquée si la
-# Content-Security-Policy du .htaccess est activée un jour.
-
-RSVP_URL = ('https://docs.google.com/forms/d/e/'
-            '1FAIpQLSfy6HQUvWoZKONP3kJriYzAOD6oVazQjdXFAKNStFliO3EPEw/viewform')
+# et changer les constantes ci-dessous. Le formulaire RSVP est sur la page
+# même (section #rsvp) et envoie vers api/rsvp.php : enregistrement hors du
+# web, alerte à l'équipe, confirmation à l'invité.
 
 EVENT_FACTS = [
     ('Date', 'Friday, December 11, 2026'),
@@ -1362,7 +1359,7 @@ PAGES['event-two-cities.html'] = (
       </div>
       <div class="evcard__cta">
         <p>Admission is by invitation. Let us know you are coming so we can plan the evening.</p>
-        <a class="btn btn--go" href="{RSVP_URL}" target="_blank" rel="noopener noreferrer">RSVP for this event <svg><use href="#arrow"/></svg></a>
+        <a class="btn btn--go" href="#rsvp">RSVP for this event <svg><use href="#arrow"/></svg></a>
       </div>
     </div>
   </div>
@@ -1377,11 +1374,62 @@ PAGES['event-two-cities.html'] = (
         <p>On December 11, Glenview Mansion in Rockville becomes the meeting point between Maryland and northern Côte d'Ivoire. The evening celebrates what the two communities share and what each brings: music, dance, craft, food and the people who carry them.</p>
         <p>Ivorian rhythms and dance, the woven and painted textiles of the Senufo country, and a table that puts the two cuisines side by side. It is a cultural evening before it is a formal one — come to meet people.</p>
       </div>
-      <a class="btn btn--go" style="margin-top:26px" href="{RSVP_URL}" target="_blank" rel="noopener noreferrer">Reserve your place <svg><use href="#arrow"/></svg></a>
+      <a class="btn btn--go" style="margin-top:26px" href="#rsvp">Reserve your place <svg><use href="#arrow"/></svg></a>
     </div>
     <div class="rv" data-d="2">
       <img class="evposter" src="assets/img/dest/event-two-cities-poster.webp" alt="Two Cities, One Friendship — December 11, 2026, Glenview Mansion, Rockville">
     </div>
+  </div>
+</section>
+
+<section class="block rsvp" id="rsvp" data-way>
+  <div class="wrap rsvp__wrap">
+    <div class="head rv"><div><div class="eyebrow">RSVP</div>
+      <h2 class="h-lg">Will you join us?</h2>
+      <p class="lede">It takes a minute. You will receive a confirmation by email right away.</p></div></div>
+    <div class="alert alert--ok" id="rsvpOk" role="status"></div>
+    <div class="alert alert--ko" id="rsvpKo" role="alert"></div>
+    <form class="form rsvp__form rv" id="rsvpForm" novalidate
+      data-ok-yes="Thank you — your place is confirmed. A confirmation is on its way to your inbox."
+      data-ok-no="Thank you for letting us know. We hope to see you at a future event."
+      data-err-fields="Please check the highlighted fields."
+      data-err-rate="Too many attempts. Please try again in an hour, or email tourism@ambaciusa.org."
+      data-err-server="Something went wrong on our side. Email tourism@ambaciusa.org and we will add you to the list."
+      data-err-net="Could not reach the server. Check your connection, or email tourism@ambaciusa.org."
+      data-sending="Sending…">
+      <input type="hidden" name="lang" value="en">
+      <div class="field field--choice" id="attField"><span class="lbl">Can you attend?</span>
+        <div class="choice">
+          <label><input type="radio" name="attending" value="yes" required><span>Yes, I'll be there</span></label>
+          <label><input type="radio" name="attending" value="no"><span>Sorry, can't make it</span></label>
+        </div><div class="msg">Please choose one.</div></div>
+      <div class="row2">
+        <div class="field"><label for="rv-name">Full name</label><input id="rv-name" name="name" autocomplete="name" required><div class="msg">Required.</div></div>
+        <div class="field"><label for="rv-email">Email</label><input id="rv-email" type="email" name="email" autocomplete="email" required><div class="msg">Enter a valid email address.</div></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="rv-phone">Phone <i>(optional)</i></label><input id="rv-phone" type="tel" name="phone" autocomplete="tel"></div>
+        <div class="field"><label for="rv-heard">How did you hear about this event?</label>
+          <select id="rv-heard" name="heard">
+            <option value="">Choose one</option>
+            <option value="website">Website</option>
+            <option value="friend">Friend</option>
+            <option value="newsletter">Newsletter</option>
+            <option value="ad">Advertisement</option>
+          </select></div>
+      </div>
+      <div class="field" id="guestsField"><label for="rv-guests">What are the names of people attending?</label>
+        <input id="rv-guests" name="guests" placeholder="Including yourself — e.g. Jane Doe, John Doe"></div>
+      <div class="field"><label for="rv-comments">Comments and/or questions</label>
+        <textarea id="rv-comments" name="comments" rows="4"></textarea></div>
+      <div style="position:absolute;left:-9999px" aria-hidden="true">
+        <label for="rv-website">Leave this empty</label>
+        <input id="rv-website" name="website" type="text" tabindex="-1" autocomplete="off">
+        <input class="started" name="started" type="text" tabindex="-1" autocomplete="off" value="">
+      </div>
+      <button type="submit" class="btn btn--go" style="justify-self:start">Send my RSVP <svg><use href="#arrow"/></svg></button>
+      <p class="formNote">We use these details only to organise the evening and will not share them.</p>
+    </form>
   </div>
 </section>
 

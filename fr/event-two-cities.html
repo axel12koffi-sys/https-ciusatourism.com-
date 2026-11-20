@@ -143,7 +143,7 @@
       </div>
       <div class="evcard__cta">
         <p>L'entrée se fait sur invitation. Dites-nous que vous venez, pour que nous puissions préparer la soirée.</p>
-        <a class="btn btn--go" href="https://docs.google.com/forms/d/e/1FAIpQLSfy6HQUvWoZKONP3kJriYzAOD6oVazQjdXFAKNStFliO3EPEw/viewform" target="_blank" rel="noopener noreferrer">Confirmer ma présence <svg><use href="#arrow"/></svg></a>
+        <a class="btn btn--go" href="#rsvp">Confirmer ma présence <svg><use href="#arrow"/></svg></a>
       </div>
     </div>
   </div>
@@ -158,11 +158,62 @@
         <p>Le 11 décembre, Glenview Mansion à Rockville devient le point de rencontre entre le Maryland et le nord de la Côte d'Ivoire. La soirée célèbre ce que les deux communautés ont en commun et ce que chacune apporte : musique, danse, artisanat, cuisine, et les gens qui les font vivre.</p>
         <p>Rythmes et danses ivoiriens, tissages et toiles peintes du pays sénoufo, et une table où les deux cuisines se côtoient. C'est une soirée culturelle avant d'être une soirée officielle : on y vient pour rencontrer des gens.</p>
       </div>
-      <a class="btn btn--go" style="margin-top:26px" href="https://docs.google.com/forms/d/e/1FAIpQLSfy6HQUvWoZKONP3kJriYzAOD6oVazQjdXFAKNStFliO3EPEw/viewform" target="_blank" rel="noopener noreferrer">Réserver ma place <svg><use href="#arrow"/></svg></a>
+      <a class="btn btn--go" style="margin-top:26px" href="#rsvp">Réserver ma place <svg><use href="#arrow"/></svg></a>
     </div>
     <div class="rv" data-d="2">
       <img class="evposter" src="../assets/img/dest/event-two-cities-poster.webp" alt="Two Cities, One Friendship — December 11, 2026, Glenview Mansion, Rockville">
     </div>
+  </div>
+</section>
+
+<section class="block rsvp" id="rsvp" data-way>
+  <div class="wrap rsvp__wrap">
+    <div class="head rv"><div><div class="eyebrow">RSVP</div>
+      <h2 class="h-lg">Serez-vous des nôtres ?</h2>
+      <p class="lede">Une minute suffit. Vous recevrez aussitôt une confirmation par e-mail.</p></div></div>
+    <div class="alert alert--ok" id="rsvpOk" role="status"></div>
+    <div class="alert alert--ko" id="rsvpKo" role="alert"></div>
+    <form class="form rsvp__form rv" id="rsvpForm" novalidate
+      data-ok-yes="Merci, votre présence est confirmée. Un e-mail de confirmation est en route vers votre boîte de réception."
+      data-ok-no="Merci de nous avoir prévenus. Nous espérons vous retrouver lors d'un prochain événement."
+      data-err-fields="Merci de vérifier les champs signalés."
+      data-err-rate="Trop de tentatives. Réessayez dans une heure, ou écrivez à tourism@ambaciusa.org."
+      data-err-server="Un problème est survenu de notre côté. Écrivez à tourism@ambaciusa.org et nous vous ajouterons à la liste."
+      data-err-net="Impossible de joindre le serveur. Vérifiez votre connexion, ou écrivez à tourism@ambaciusa.org."
+      data-sending="Envoi…">
+      <input type="hidden" name="lang" value="fr">
+      <div class="field field--choice" id="attField"><span class="lbl">Serez-vous présent ?</span>
+        <div class="choice">
+          <label><input type="radio" name="attending" value="yes" required><span>Oui, je serai là</span></label>
+          <label><input type="radio" name="attending" value="no"><span>Désolé, je ne pourrai pas venir</span></label>
+        </div><div class="msg">Merci de choisir une réponse.</div></div>
+      <div class="row2">
+        <div class="field"><label for="rv-name">Nom complet</label><input id="rv-name" name="name" autocomplete="name" required><div class="msg">Champ obligatoire.</div></div>
+        <div class="field"><label for="rv-email">E-mail</label><input id="rv-email" type="email" name="email" autocomplete="email" required><div class="msg">Saisissez une adresse e-mail valide.</div></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="rv-phone">Téléphone <i>(facultatif)</i></label><input id="rv-phone" type="tel" name="phone" autocomplete="tel"></div>
+        <div class="field"><label for="rv-heard">Comment avez-vous entendu parler de l'événement ?</label>
+          <select id="rv-heard" name="heard">
+            <option value="">Choisissez</option>
+            <option value="website">Site web</option>
+            <option value="friend">Un proche</option>
+            <option value="newsletter">Newsletter</option>
+            <option value="ad">Publicité</option>
+          </select></div>
+      </div>
+      <div class="field" id="guestsField"><label for="rv-guests">Noms des personnes présentes</label>
+        <input id="rv-guests" name="guests" placeholder="Vous compris — ex. : Awa Koné, Jean Dupont"></div>
+      <div class="field"><label for="rv-comments">Commentaires ou questions</label>
+        <textarea id="rv-comments" name="comments" rows="4"></textarea></div>
+      <div style="position:absolute;left:-9999px" aria-hidden="true">
+        <label for="rv-website">Laissez ce champ vide</label>
+        <input id="rv-website" name="website" type="text" tabindex="-1" autocomplete="off">
+        <input class="started" name="started" type="text" tabindex="-1" autocomplete="off" value="">
+      </div>
+      <button type="submit" class="btn btn--go" style="justify-self:start">Envoyer ma réponse <svg><use href="#arrow"/></svg></button>
+      <p class="formNote">Ces informations servent uniquement à organiser la soirée et ne sont transmises à personne.</p>
+    </form>
   </div>
 </section>
 

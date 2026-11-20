@@ -7,8 +7,10 @@ Deux fichiers, prêts à l'emploi :
 | `email/invitation-two-cities-en.html` | anglais |
 | `email/invitation-two-cities-fr.html` | français |
 
-Le bouton RSVP pointe vers le formulaire Google. Le reste du message renvoie
-vers `ciusatourism.com/event-two-cities`.
+Les boutons RSVP ouvrent le formulaire de la page de l'événement
+(`ciusatourism.com/event-two-cities#rsvp`). **Pour envoyer à une liste,
+utiliser plutôt la page d'envoi `/admin/send.php` (voir `RSVP.md`)** :
+même mise en forme, invitation personnalisée, suivi des envois.
 
 ---
 
@@ -84,8 +86,11 @@ Tout est en clair dans le fichier. Les points à surveiller :
 
 - **Date limite de réponse** — « December 5 » / « 5 décembre » apparaît deux
   fois par fichier (bloc RSVP et texte d'aperçu).
-- **Lien du formulaire** — l'adresse `docs.google.com/forms/...` apparaît deux
-  fois (bouton RSVP et bouton « Reserve your seat »).
+- **Lien RSVP** — `ciusatourism.com/event-two-cities#rsvp` apparaît deux fois
+  (bouton RSVP et bouton « Reserve your seat »). Ne pas le modifier : la page
+  d'envoi s'en sert pour pré-remplir le nom et l'adresse de chaque invité.
+- **`<!--GREETING-->`** — emplacement de la salutation « Dear Jane, » ajoutée
+  par la page d'envoi. À laisser en place.
 - **Ne pas remplacer les tableaux par des `div`.** Outlook ne sait pas les
   afficher : la mise en page se retrouverait en une seule colonne.
 - **Ne pas utiliser d'images `.webp`.** Outlook ne les affiche pas. C'est pour
