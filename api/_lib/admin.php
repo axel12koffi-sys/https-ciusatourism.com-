@@ -128,7 +128,7 @@ function sb_page_top(string $title, string $active = ''): void
 
 function sb_page_bottom(): void
 {
-    echo '</main></body></html>';
+    echo '</main><script src="admin.js"></script></body></html>';
 }
 
 function sb_login_page(string $error = ''): never

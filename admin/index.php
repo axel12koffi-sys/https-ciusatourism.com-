@@ -110,7 +110,7 @@ if ($flash) {
         <td><?= sb_h(SB_HEARD[$r['heard']][1] ?? '—') ?></td>
         <td class="wrap"><?= $r['comments'] !== '' ? nl2br(sb_h($r['comments'])) : '<span class="muted">—</span>' ?></td>
         <td class="nowrap muted"><?= sb_h(date('d/m H:i', strtotime($r['updated']) ?: time())) ?><br><?= strtoupper(sb_h($r['lang'])) ?></td>
-        <td><form method="post" onsubmit="return confirm('Supprimer la réponse de <?= sb_h(addslashes($r['name'])) ?> ?')">
+        <td><form method="post" data-confirm="Supprimer la réponse de <?= sb_h($r['name']) ?> ?">
           <input type="hidden" name="csrf" value="<?= sb_h(sb_csrf()) ?>"><input type="hidden" name="email" value="<?= sb_h($r['email']) ?>">
           <button class="link danger" name="action" value="delete">Supprimer</button></form></td>
       </tr>
