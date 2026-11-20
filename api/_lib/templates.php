@@ -172,13 +172,24 @@ function sb_invitation(string $lang, string $name, string $email): array
 
     $d = SB_EVENT[$fr ? 'fr' : 'en'];
     $text = ($first !== '' ? ($fr ? "Bonjour $first,\n\n" : "Dear $first,\n\n") : '')
-          . ($fr ? "Vous êtes convié(e) à\n" : "You're invited to\n")
-          . "TWO CITIES, ONE FRIENDSHIP\nRockville, Maryland · Korhogo, Côte d'Ivoire\n\n"
+          . ($fr ? "Vous êtes cordialement convié(e) en tant que notre invité(e) d'honneur\n\n"
+                 : "You're Cordially Invited as Our Distinguished VIP Guest\n\n")
+          . "TWO CITIES, ONE FRIENDSHIP\n"
+          . ($fr ? "Une célébration de la culture et du patrimoine pour renforcer les liens entre\nRockville (Maryland, États-Unis) et Korhogo (Côte d'Ivoire)\n\n"
+                 : "A Celebration of Culture and Heritage: Strengthening the Ties Between\nRockville, Maryland, USA, and Korhogo, Côte d'Ivoire\n\n")
           . ($fr ? 'Date : ' : 'Date: ') . $d['date'] . "\n"
-          . ($fr ? 'Horaire : ' : 'Time: ') . $d['time'] . "\n"
+          . ($fr ? 'Horaire : ' : 'Time: ') . $d['time'] . ($fr ? ' (programme officiel à 21 h)' : ' (official program at 9:00 p.m.)') . "\n"
           . ($fr ? 'Lieu : ' : 'Venue: ') . SB_EVENT['venue'] . ', ' . SB_EVENT['address'] . "\n\n"
-          . ($fr ? "Une soirée, deux cultures : rythmes et danses ivoiriens, saveurs de la cuisine ivoirienne,\nartisanat sénoufo. Le nombre de places est limité.\n\n"
-                 : "One evening, two cultures: Ivorian rhythms and dance, a taste of Ivorian cuisine,\nSenufo craft on display. Seating is limited.\n\n")
+          . ($fr ? "Rejoignez-nous pour une célébration exclusive du patrimoine culturel et de l'amitié.\n"
+                 . "Découvrez les traditions sénoufo du nord de la Côte d'Ivoire à travers des objets\n"
+                 . "traditionnels, des expositions culturelles et des échanges enrichissants.\n"
+                 . "Buffet, boissons et conversations agréables. Le programme officiel débutera à 21 h.\n\n"
+                 . "Votre invitation VIP est offerte — nous serions honorés de vous accueillir !\n\n"
+                 : "Join us for an exclusive celebration of cultural heritage and friendship.\n"
+                 . "Discover the Sénoufo traditions of northern Côte d'Ivoire through traditional\n"
+                 . "artifacts, cultural exhibits, and meaningful exchanges.\n"
+                 . "A generous buffet, drinks, and pleasant conversation. The official program will begin at 9:00 p.m.\n\n"
+                 . "Your VIP invitation is complimentary — we would be honored to welcome you!\n\n")
           . ($fr ? 'Répondre (RSVP) : ' : 'RSVP: ') . $base . ($q ? '?' . $q : '') . "#rsvp\n\n"
           . "Sublime CI-USA — " . ($fr ? 'Office du tourisme de Côte d’Ivoire' : 'Tourism Office of Côte d’Ivoire') . "\n"
           . "2424 Massachusetts Avenue N.W., Washington, D.C. 20008\ntourism@ambaciusa.org\n";

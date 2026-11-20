@@ -75,8 +75,8 @@ Quelques formulations qui s'affichent entièrement sur mobile :
 - *(FR)* `Invitation — Two Cities, One Friendship, le 11 décembre`
 
 Le texte d'aperçu (la ligne grise à côté de l'objet dans la boîte de réception)
-est déjà inscrit dans le fichier : *Friday, December 11, 2026 · Glenview
-Mansion, Rockville, Maryland · Please RSVP by December 5.*
+est déjà inscrit dans le fichier : *Friday, December 11 · 6:00–10:00 PM ·
+Glenview Mansion, Rockville, MD · Your VIP invitation is complimentary.*
 
 ---
 
@@ -84,8 +84,6 @@ Mansion, Rockville, Maryland · Please RSVP by December 5.*
 
 Tout est en clair dans le fichier. Les points à surveiller :
 
-- **Date limite de réponse** — « December 5 » / « 5 décembre » apparaît deux
-  fois par fichier (bloc RSVP et texte d'aperçu).
 - **Lien RSVP** — `ciusatourism.com/event-two-cities#rsvp` apparaît deux fois
   (bouton RSVP et bouton « Reserve your seat »). Ne pas le modifier : la page
   d'envoi s'en sert pour pré-remplir le nom et l'adresse de chaque invité.

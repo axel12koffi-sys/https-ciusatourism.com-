@@ -620,6 +620,24 @@ CHROME = [
     (">Event<", ">Événement<"),
     (">Upcoming<", ">À venir<"),
 
+    # --- texte officiel de l'événement ---
+    ("A celebration of culture and heritage strengthening the ties between Rockville, Maryland, USA, and Korhogo, Côte d'Ivoire. Friday, December 11, 2026.",
+     "Une célébration de la culture et du patrimoine pour renforcer les liens entre Rockville (Maryland, États-Unis) et Korhogo (Côte d'Ivoire). Vendredi 11 décembre 2026."),
+    ("Your VIP invitation is complimentary. Let us know you are coming so we can welcome you.",
+     "Votre invitation VIP est offerte. Dites-nous que vous venez, pour que nous puissions vous accueillir."),
+    ("Join us for an exclusive celebration of cultural heritage and friendship, fostering stronger ties between Rockville, Maryland, USA, and Korhogo, Côte d'Ivoire.",
+     "Rejoignez-nous pour une célébration exclusive du patrimoine culturel et de l'amitié, qui resserre les liens entre Rockville (Maryland, États-Unis) et Korhogo (Côte d'Ivoire)."),
+    ("Discover the rich cultural heritage and Sénoufo traditions of northern Côte d'Ivoire through traditional artifacts, cultural exhibits, and meaningful exchanges. Celebrate the shared values of Rockville and Korhogo while fostering friendship, cultural understanding, and future cooperation in tourism, education, and community development.",
+     "Découvrez la richesse du patrimoine culturel et des traditions sénoufo du nord de la Côte d'Ivoire à travers des objets traditionnels, des expositions culturelles et des échanges enrichissants. Célébrez les valeurs que partagent Rockville et Korhogo, tout en favorisant l'amitié, la compréhension culturelle et une future coopération dans le tourisme, l'éducation et le développement communautaire."),
+    ("Enjoy a culinary celebration featuring a generous buffet, drinks, and pleasant conversation.",
+     "Profitez d'une célébration culinaire avec un généreux buffet, des boissons et d'agréables conversations."),
+    ("<b>6:00 PM</b>", "<b>18 h</b>"),
+    ("<b>9:00 PM</b>", "<b>21 h</b>"),
+    ("<b>10:00 PM</b>", "<b>22 h</b>"),
+    ("<span>Welcome, cultural exhibits and buffet</span>", "<span>Accueil, expositions culturelles et buffet</span>"),
+    ("<span>Official program</span>", "<span>Programme officiel</span>"),
+    ("<span>End of the evening</span>", "<span>Fin de la soirée</span>"),
+
     # --- formulaire RSVP intégré ---
     ('name="lang" value="en"', 'name="lang" value="fr"'),
     ("Will you join us?", "Serez-vous des nôtres ?"),

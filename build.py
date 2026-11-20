@@ -1349,7 +1349,7 @@ PAGES['event-two-cities.html'] = (
     phero([('index.html', 'Home'), ('blog.html', 'Blog &amp; News'),
            ('', 'Two Cities, One Friendship')],
           'Two Cities,<br>One Friendship',
-          "Rockville, Maryland and Korhogo, Côte d'Ivoire — an evening of culture, music and heritage. Friday, December 11, 2026.",
+          "A celebration of culture and heritage strengthening the ties between Rockville, Maryland, USA, and Korhogo, Côte d'Ivoire. Friday, December 11, 2026.",
           'assets/img/dest/event-two-cities.webp') + f"""
 <section class="block block--tight" data-way>
   <div class="wrap">
@@ -1358,7 +1358,7 @@ PAGES['event-two-cities.html'] = (
 {_facts}
       </div>
       <div class="evcard__cta">
-        <p>Admission is by invitation. Let us know you are coming so we can plan the evening.</p>
+        <p>Your VIP invitation is complimentary. Let us know you are coming so we can welcome you.</p>
         <a class="btn btn--go" href="#rsvp">RSVP for this event <svg><use href="#arrow"/></svg></a>
       </div>
     </div>
@@ -1371,9 +1371,15 @@ PAGES['event-two-cities.html'] = (
       <div class="eyebrow">The evening</div>
       <h2 class="h-lg">One evening,<br>two cultures.</h2>
       <div class="prose">
-        <p>On December 11, Glenview Mansion in Rockville becomes the meeting point between Maryland and northern Côte d'Ivoire. The evening celebrates what the two communities share and what each brings: music, dance, craft, food and the people who carry them.</p>
-        <p>Ivorian rhythms and dance, the woven and painted textiles of the Senufo country, and a table that puts the two cuisines side by side. It is a cultural evening before it is a formal one — come to meet people.</p>
+        <p>Join us for an exclusive celebration of cultural heritage and friendship, fostering stronger ties between Rockville, Maryland, USA, and Korhogo, Côte d'Ivoire.</p>
+        <p>Discover the rich cultural heritage and Sénoufo traditions of northern Côte d'Ivoire through traditional artifacts, cultural exhibits, and meaningful exchanges. Celebrate the shared values of Rockville and Korhogo while fostering friendship, cultural understanding, and future cooperation in tourism, education, and community development.</p>
+        <p>Enjoy a culinary celebration featuring a generous buffet, drinks, and pleasant conversation.</p>
       </div>
+      <ol class="evprog">
+        <li><b>6:00 PM</b><span>Welcome, cultural exhibits and buffet</span></li>
+        <li><b>9:00 PM</b><span>Official program</span></li>
+        <li><b>10:00 PM</b><span>End of the evening</span></li>
+      </ol>
       <a class="btn btn--go" style="margin-top:26px" href="#rsvp">Reserve your place <svg><use href="#arrow"/></svg></a>
     </div>
     <div class="rv" data-d="2">

@@ -21,8 +21,8 @@ sb_require_login();
 
 const SB_CAMPAIGN = 'two-cities';
 const SB_SUBJECTS = [
-    'en' => "You're invited — Two Cities, One Friendship, December 11",
-    'fr' => 'Invitation — Two Cities, One Friendship, le 11 décembre',
+    'en' => "You're Cordially Invited — Two Cities, One Friendship, December 11",
+    'fr' => 'Invitation VIP — Two Cities, One Friendship, le 11 décembre',
 ];
 
 function sb_sent_file(): string
