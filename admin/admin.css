@@ -46,7 +46,7 @@ code{background:#eef1f6;padding:1px 6px;border-radius:5px;font-size:12.5px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:8px}
 .stats div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
 .stats b{display:block;font-size:30px;line-height:1.1;color:var(--navy)}
-.stats div:first-child b{color:var(--green)}
+.stats .st-yes b{color:var(--green)}
 .stats span{font-size:13px;color:var(--muted)}
 .empty{text-align:center;padding:40px 22px;margin-top:16px}
 .table{padding:0;overflow-x:auto;margin-top:16px}
@@ -76,3 +76,18 @@ td form{margin:0}
 .progress li.error{background:#fbeaef;color:var(--red)}
 .progress li.error::before{content:"✗"}
 @media(max-width:900px){.sendgrid{grid-template-columns:1fr}.preview{position:static}.preview iframe{height:70vh}.stats{grid-template-columns:repeat(2,1fr)}}
+/* sections du tableau de bord */
+.sect{margin-top:34px}
+.sect h2{font-size:19px;margin:0 0 4px}
+.sect .head{margin-bottom:14px}
+.stats .st-wait b{color:var(--orange)}
+.pill.wait{background:#fff1df;color:#9a5300}
+.pill.fail{background:#fbeaef;color:var(--red)}
+.err{color:var(--red)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:99px;padding:7px 14px;font:500 13px Poppins,sans-serif;cursor:pointer}
+.chip span{color:var(--muted);margin-left:4px;font-variant-numeric:tabular-nums}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip.on span{color:#c9d4e6}
+.chip:focus-visible,.btn:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.head .row .btn{white-space:nowrap}

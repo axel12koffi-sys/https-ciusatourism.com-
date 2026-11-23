@@ -15,35 +15,16 @@ require __DIR__ . '/../api/_lib/admin.php';
 require __DIR__ . '/../api/_lib/store.php';
 require __DIR__ . '/../api/_lib/mailer.php';
 require __DIR__ . '/../api/_lib/templates.php';
+require __DIR__ . '/../api/_lib/invites.php';
 
 sb_admin_start();
 sb_require_login();
 
-const SB_CAMPAIGN = 'two-cities';
 const SB_SUBJECTS = [
     'en' => "You're Cordially Invited — Two Cities, One Friendship, December 11",
     'fr' => 'Invitation VIP — Two Cities, One Friendship, le 11 décembre',
 ];
-
-function sb_sent_file(): string
-{
-    return sb_private_dir() . '/sent-' . SB_CAMPAIGN . '.log';
-}
-
-/** @return array<string,string> e-mail => date du dernier envoi réussi */
-function sb_already_sent(): array
-{
-    $done = [];
-    if (is_file(sb_sent_file())) {
-        foreach (file(sb_sent_file(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $l) {
-            $e = json_decode($l, true);
-            if (($e['status'] ?? '') === 'sent' && empty($e['test'])) {
-                $done[strtolower((string) $e['email'])] = (string) $e['t'];
-            }
-        }
-    }
-    return $done;
-}
+const SB_REMINDER = ['en' => 'Reminder: ', 'fr' => 'Rappel : '];
 
 // ------------------------------------------------------------ aperçu
 if (isset($_GET['preview'])) {
@@ -86,6 +67,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
 // ------------------------------------------------------------ page
 $sent  = sb_already_sent();
+$relance = in_array($_GET['relance'] ?? '', ['en', 'fr'], true) ? $_GET['relance'] : '';
+$prefill = '';
+if ($relance) {
+    foreach (sb_invites() as $i) {
+        if ($i['state'] === 'pending' && $i['lang'] === $relance) {
+            $prefill .= ($i['name'] !== '' ? $i['name'] . ', ' : '') . $i['email'] . "\n";
+        }
+    }
+}
+$lang0 = $relance ?: 'en';
+$subj0 = ($relance ? SB_REMINDER[$relance] : '') . SB_SUBJECTS[$lang0];
 $delay = max(1, (int) sb_config()['send_delay']);
 $smtp  = sb_configured('smtp_pass');
 sb_page_top('Envoyer l’invitation', 'send');
@@ -97,21 +89,24 @@ sb_page_top('Envoyer l’invitation', 'send');
 <p class="alert warn">Le mot de passe SMTP n’est pas configuré : l’envoi passera par mail(), avec un risque élevé d’arriver en spam. Complétez <code>smtp_pass</code> dans config.php avant un envoi réel.</p>
 <?php endif ?>
 
+<?php if ($relance): ?>
+<p class="alert info">Relance : la liste contient les invités <?= $relance === 'fr' ? 'francophones' : 'anglophones' ?> qui n’ont pas encore répondu, et l’objet commence par « <?= sb_h(trim(SB_REMINDER[$relance])) ?> ». Relisez, envoyez-vous un test, puis lancez l’envoi.</p>
+<?php endif ?>
 <div class="sendgrid">
   <div class="card">
     <h2>1. Destinataires</h2>
     <p class="muted small">Une personne par ligne : <code>Prénom Nom, adresse@exemple.com</code> — le nom est facultatif mais permet de personnaliser l’invitation (« Dear Jane, »). Collage direct depuis Excel accepté.</p>
-    <textarea id="list" rows="10" placeholder="Jane Doe, jane@example.com&#10;john@example.com&#10;Aminata Koné; aminata@example.org"></textarea>
+    <textarea id="list" rows="10" placeholder="Jane Doe, jane@example.com&#10;john@example.com&#10;Aminata Koné; aminata@example.org"><?= sb_h($prefill) ?></textarea>
     <p class="small" id="count"></p>
 
     <h2>2. Message</h2>
     <div class="row">
-      <label class="radio"><input type="radio" name="lang" value="en" checked> Anglais</label>
-      <label class="radio"><input type="radio" name="lang" value="fr"> Français</label>
+      <label class="radio"><input type="radio" name="lang" value="en"<?= $lang0 === 'en' ? ' checked' : '' ?>> Anglais</label>
+      <label class="radio"><input type="radio" name="lang" value="fr"<?= $lang0 === 'fr' ? ' checked' : '' ?>> Français</label>
     </div>
     <label for="subject">Objet</label>
-    <input id="subject" value="<?= sb_h(SB_SUBJECTS['en']) ?>">
-    <label class="check"><input type="checkbox" id="force"> Renvoyer aussi aux personnes qui l’ont déjà reçue
+    <input id="subject" value="<?= sb_h($subj0) ?>">
+    <label class="check"><input type="checkbox" id="force"<?= $relance ? ' checked' : '' ?>> Renvoyer aussi aux personnes qui l’ont déjà reçue
       <span class="muted">(<?= count($sent) ?> envoi<?= count($sent) > 1 ? 's' : '' ?> réussi<?= count($sent) > 1 ? 's' : '' ?> à ce jour)</span></label>
 
     <h2>3. Test, puis envoi</h2>

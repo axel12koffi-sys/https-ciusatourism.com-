@@ -9,6 +9,22 @@ document.querySelectorAll('form[data-confirm]').forEach(function (f) {
   });
 });
 
+/* filtre des invitations par état (tableau de bord) */
+(function () {
+  var table = document.getElementById('invTable');
+  if (!table) return;
+  var chips = document.querySelectorAll('.chip[data-filter]');
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      var f = c.getAttribute('data-filter');
+      chips.forEach(function (x) { x.classList.toggle('on', x === c); });
+      table.querySelectorAll('tbody tr').forEach(function (tr) {
+        tr.hidden = f !== 'all' && tr.getAttribute('data-state') !== f;
+      });
+    });
+  });
+})();
+
 /* page d'envoi */
 if (document.getElementById('sendCfg')) (function () {
   var C = JSON.parse(document.getElementById('sendCfg').textContent);
@@ -62,7 +78,9 @@ if (document.getElementById('sendCfg')) (function () {
 
   document.querySelectorAll('input[name=lang]').forEach(function (i) {
     i.addEventListener('change', function () {
+      var R = { en: 'Reminder: ', fr: 'Rappel : ' };
       if (subj.value === SUBJ.en || subj.value === SUBJ.fr) subj.value = SUBJ[lang()];
+      else if (subj.value === R.en + SUBJ.en || subj.value === R.fr + SUBJ.fr) subj.value = R[lang()] + SUBJ[lang()];
       refresh();
     });
   });

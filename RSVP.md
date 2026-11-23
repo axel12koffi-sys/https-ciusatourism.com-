@@ -5,7 +5,7 @@ Trois pièces, toutes sur ciusatourism.com, sans Google Forms :
 | Adresse | Pour qui | Rôle |
 |---|---|---|
 | `/event-two-cities#rsvp` | les invités | formulaire de réponse (EN et FR) |
-| `/admin/` | l'équipe | liste des réponses, export Excel, suppression |
+| `/admin/` | l'équipe | tableau de bord : invitations envoyées et leur état, réponses, exports Excel |
 | `/admin/send.php` | l'équipe | envoi de l'invitation, avec aperçu et test |
 
 Quand un invité répond : sa réponse est enregistrée, `tourism@ambaciusa.org`
@@ -78,6 +78,22 @@ Le bouton RSVP de chaque invitation ouvre le formulaire avec le nom et
 l'adresse de l'invité déjà remplis.
 
 ---
+
+## Suivre les invitations
+
+Le tableau de bord (`/admin/`) liste chaque invitation envoyée avec son état :
+
+| État | Signification |
+|---|---|
+| En attente de réponse | l'invitation est partie, l'invité n'a pas encore répondu |
+| A répondu : oui / non | l'invité a répondu au formulaire **avec la même adresse e-mail** |
+| Échec d'envoi | le serveur de messagerie a refusé l'adresse (le motif s'affiche) |
+
+Les boutons *Relancer N personnes en attente* ouvrent la page d'envoi avec la
+liste déjà remplie (une langue à la fois), l'objet préfixé par « Reminder: » /
+« Rappel : » et la case *Renvoyer* cochée. Un invité qui répond avec une autre
+adresse que celle de l'invitation reste « en attente » : sa réponse apparaît
+quand même dans *Réponses reçues*.
 
 ## Où sont les données
 

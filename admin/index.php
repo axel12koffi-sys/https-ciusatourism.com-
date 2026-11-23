@@ -1,13 +1,15 @@
 <?php
 /**
- * SUBLIME CI-USA — liste des réponses RSVP.
- * Connexion, tableau, export CSV (Excel), suppression d'une réponse.
+ * SUBLIME CI-USA — tableau de bord de l'événement.
+ * Invitations envoyées et leur état, réponses RSVP, exports Excel,
+ * suppression d'une réponse.
  */
 
 declare(strict_types=1);
 define('SUBLIME', 1);
 require __DIR__ . '/../api/_lib/admin.php';
 require __DIR__ . '/../api/_lib/store.php';
+require __DIR__ . '/../api/_lib/invites.php';
 
 sb_admin_start();
 
@@ -43,6 +45,30 @@ if (!sb_admin_logged()) {
 
 $rows = sb_rsvp_all();
 
+$invites = sb_invites();
+const SB_STATE = [
+    'pending' => ['En attente de réponse', 'wait'],
+    'yes'     => ['A répondu : oui', 'yes'],
+    'no'      => ['A répondu : non', 'no'],
+    'failed'  => ['Échec d’envoi', 'fail'],
+];
+$fmt = fn (string $t) => $t !== '' ? date('d/m H:i', strtotime($t) ?: time()) : '—';
+$xl  = fn (string $t) => $t !== '' ? date('Y-m-d H:i', strtotime($t) ?: time()) : '';
+
+if (($_GET['export'] ?? '') === 'invites') {
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="invitations-two-cities-' . date('Y-m-d') . '.csv"');
+    $out = fopen('php://output', 'w');
+    fwrite($out, "\xEF\xBB\xBF");
+    $safe = fn (string $v) => preg_match('/^[=+\-@\t\r]/', $v) ? "'" . $v : $v;
+    fputcsv($out, ['État', 'Nom', 'E-mail', 'Langue', 'Invitée le', 'Dernier envoi', 'Envois', 'Réponse le'], ';', '"', '');
+    foreach ($invites as $i) {
+        fputcsv($out, array_map($safe, [SB_STATE[$i['state']][0], $i['name'], $i['email'], strtoupper($i['lang']),
+            $xl($i['first']), $xl($i['last']), (string) $i['sends'], $xl($i['answered'])]), ';', '"', '');
+    }
+    exit;
+}
+
 // ------------------------------------------------------------ export CSV
 if (($_GET['export'] ?? '') === 'csv') {
     header('Content-Type: text/csv; charset=utf-8');
@@ -71,7 +97,16 @@ foreach ($yes as $r) {
     $people += max(1, count($names));
 }
 
-sb_page_top('Réponses RSVP', 'list');
+$count = array_count_values(array_column($invites, 'state')) + ['pending' => 0, 'yes' => 0, 'no' => 0, 'failed' => 0];
+$sentN = count($invites) - $count['failed'];
+$pendingLang = ['en' => 0, 'fr' => 0];
+foreach ($invites as $i) {
+    if ($i['state'] === 'pending') {
+        $pendingLang[$i['lang']]++;
+    }
+}
+
+sb_page_top('Tableau de bord', 'list');
 
 if (!sb_configured('smtp_pass')) {
     echo '<p class="alert warn">Le mot de passe SMTP n’est pas configuré : les e-mails partent via la fonction mail() du serveur, plus souvent classée en spam. Voir RSVP.md.</p>';
@@ -82,17 +117,67 @@ if ($flash) {
 ?>
 <div class="head">
   <div><h1>Two Cities, One Friendship</h1><p class="muted">Vendredi 11 décembre 2026 · Glenview Mansion, Rockville</p></div>
-  <?php if ($rows): ?><a class="btn ghost" href="?export=csv">Exporter (Excel)</a><?php endif ?>
 </div>
 
 <div class="stats">
-  <div><b><?= count($yes) ?></b><span>réponses « oui »</span></div>
-  <div><b><?= $people ?></b><span>personnes attendues*</span></div>
+  <div><b><?= $sentN ?></b><span>invitations envoyées</span></div>
+  <div class="st-wait"><b><?= $count['pending'] ?></b><span>en attente de réponse</span></div>
+  <div class="st-yes"><b><?= count($yes) ?></b><span>réponses « oui » · <?= $people ?> personne<?= $people > 1 ? 's' : '' ?> attendue<?= $people > 1 ? 's' : '' ?>*</span></div>
   <div><b><?= $no ?></b><span>réponses « non »</span></div>
-  <div><b><?= count($rows) ?></b><span>réponses au total</span></div>
 </div>
-<p class="muted small">* Estimation à partir des noms listés dans « participants » ; une réponse sans nom compte pour une personne.</p>
+<p class="muted small">* Estimation à partir des noms listés dans « participants » ; une réponse sans nom compte pour une personne. Les réponses comptent aussi les personnes qui ont répondu sans avoir reçu l’invitation par e-mail.</p>
 
+<!-- ============================================================ invitations -->
+<section class="sect" id="invitations">
+  <div class="head">
+    <div><h2>Invitations envoyées</h2>
+      <p class="muted">L’état se met à jour dès que l’invité répond au formulaire avec la même adresse e-mail.</p></div>
+    <div class="row">
+      <?php foreach (['en' => 'EN', 'fr' => 'FR'] as $lg => $lbl): if ($pendingLang[$lg]): ?>
+        <a class="btn" href="send.php?relance=<?= $lg ?>">Relancer <?= $pendingLang[$lg] === 1 ? '1 personne' : $pendingLang[$lg] . ' personnes' ?> en attente (<?= $lbl ?>)</a>
+      <?php endif; endforeach ?>
+      <?php if ($invites): ?><a class="btn ghost" href="?export=invites">Exporter (Excel)</a><?php endif ?>
+    </div>
+  </div>
+
+<?php if (!$invites): ?>
+  <div class="card empty"><p>Aucune invitation envoyée pour l’instant.</p>
+    <p class="muted">Les invitations parties depuis <a href="send.php">Envoyer l’invitation</a> apparaîtront ici, avec leur état.</p></div>
+<?php else: ?>
+  <div class="filters" role="group" aria-label="Filtrer les invitations">
+    <button type="button" class="chip on" data-filter="all">Toutes <span><?= count($invites) ?></span></button>
+    <button type="button" class="chip" data-filter="wait">En attente <span><?= $count['pending'] ?></span></button>
+    <button type="button" class="chip" data-filter="yes">Oui <span><?= $count['yes'] ?></span></button>
+    <button type="button" class="chip" data-filter="no">Non <span><?= $count['no'] ?></span></button>
+    <?php if ($count['failed']): ?><button type="button" class="chip" data-filter="fail">Échec <span><?= $count['failed'] ?></span></button><?php endif ?>
+  </div>
+  <div class="card table">
+    <table id="invTable">
+      <thead><tr><th>État</th><th>Invité</th><th>Langue</th><th>Invitée le</th><th>Relances</th><th>Réponse le</th></tr></thead>
+      <tbody>
+      <?php foreach ($invites as $i): [$label, $cls] = SB_STATE[$i['state']]; ?>
+        <tr data-state="<?= $cls ?>">
+          <td><span class="pill <?= $cls ?>"><?= $label ?></span></td>
+          <td><?= $i['name'] !== '' ? '<b>' . sb_h($i['name']) . '</b><br>' : '' ?><a href="mailto:<?= sb_h($i['email']) ?>"><?= sb_h($i['email']) ?></a>
+            <?= $i['state'] === 'failed' && $i['error'] !== '' ? '<br><span class="small err">' . sb_h($i['error']) . '</span>' : '' ?></td>
+          <td><?= strtoupper($i['lang']) ?></td>
+          <td class="nowrap muted"><?= $fmt($i['first']) ?></td>
+          <td class="muted"><?= $i['sends'] > 1 ? ($i['sends'] - 1) . ' · dernière le ' . $fmt($i['last']) : '—' ?></td>
+          <td class="nowrap muted"><?= $fmt($i['answered']) ?></td>
+        </tr>
+      <?php endforeach ?>
+      </tbody>
+    </table>
+  </div>
+<?php endif ?>
+</section>
+
+<!-- ============================================================ réponses -->
+<section class="sect" id="reponses">
+  <div class="head">
+    <div><h2>Réponses reçues</h2><p class="muted">Tout ce qui a été envoyé depuis le formulaire de la page de l’événement.</p></div>
+    <?php if ($rows): ?><a class="btn ghost" href="?export=csv">Exporter (Excel)</a><?php endif ?>
+  </div>
 <?php if (!$rows): ?>
   <div class="card empty"><p>Aucune réponse pour l’instant.</p>
     <p class="muted">Les réponses envoyées depuis <a href="/event-two-cities#rsvp" target="_blank">la page de l’événement</a> apparaîtront ici.</p></div>
@@ -118,5 +203,7 @@ if ($flash) {
     </tbody>
   </table>
 </div>
-<?php endif;
+<?php endif ?>
+</section>
+<?php
 sb_page_bottom();

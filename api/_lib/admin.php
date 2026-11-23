@@ -111,7 +111,7 @@ function sb_page_top(string $title, string $active = ''): void
     $nav = '';
     if (sb_admin_logged()) {
         $tab = fn ($href, $label, $id) => '<a href="' . $href . '"' . ($active === $id ? ' class="on"' : '') . '>' . $label . '</a>';
-        $nav = '<nav>' . $tab('./', 'Réponses RSVP', 'list') . $tab('send.php', 'Envoyer l’invitation', 'send')
+        $nav = '<nav>' . $tab('./', 'Tableau de bord', 'list') . $tab('send.php', 'Envoyer l’invitation', 'send')
              . '<form method="post" action="./"><input type="hidden" name="csrf" value="' . sb_h(sb_csrf()) . '">'
              . '<button name="action" value="logout" class="link">Déconnexion</button></form></nav>';
     }
