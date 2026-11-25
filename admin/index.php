@@ -10,6 +10,7 @@ define('SUBLIME', 1);
 require __DIR__ . '/../api/_lib/admin.php';
 require __DIR__ . '/../api/_lib/store.php';
 require __DIR__ . '/../api/_lib/invites.php';
+require __DIR__ . '/../api/_lib/xlsx.php';
 
 sb_admin_start();
 
@@ -55,38 +56,6 @@ const SB_STATE = [
 $fmt = fn (string $t) => $t !== '' ? date('d/m H:i', strtotime($t) ?: time()) : '—';
 $xl  = fn (string $t) => $t !== '' ? date('Y-m-d H:i', strtotime($t) ?: time()) : '';
 
-if (($_GET['export'] ?? '') === 'invites') {
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="invitations-two-cities-' . date('Y-m-d') . '.csv"');
-    $out = fopen('php://output', 'w');
-    fwrite($out, "\xEF\xBB\xBF");
-    $safe = fn (string $v) => preg_match('/^[=+\-@\t\r]/', $v) ? "'" . $v : $v;
-    fputcsv($out, ['État', 'Nom', 'E-mail', 'Langue', 'Invitée le', 'Dernier envoi', 'Envois', 'Réponse le'], ';', '"', '');
-    foreach ($invites as $i) {
-        fputcsv($out, array_map($safe, [SB_STATE[$i['state']][0], $i['name'], $i['email'], strtoupper($i['lang']),
-            $xl($i['first']), $xl($i['last']), (string) $i['sends'], $xl($i['answered'])]), ';', '"', '');
-    }
-    exit;
-}
-
-// ------------------------------------------------------------ export CSV
-if (($_GET['export'] ?? '') === 'csv') {
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="rsvp-two-cities-' . date('Y-m-d') . '.csv"');
-    $out = fopen('php://output', 'w');
-    fwrite($out, "\xEF\xBB\xBF");                       // accents corrects dans Excel
-    $safe = fn (string $v) => preg_match('/^[=+\-@\t\r]/', $v) ? "'" . $v : $v;  // anti-formules
-    fputcsv($out, ['Date', 'Présence', 'Nom', 'E-mail', 'Téléphone', 'Participants',
-                   'Connu par', 'Commentaire', 'Langue'], ';', '"', '');
-    foreach ($rows as $r) {
-        fputcsv($out, array_map($safe, [
-            $r['updated'], $r['attending'] === 'yes' ? 'Oui' : 'Non', $r['name'], $r['email'],
-            $r['phone'], $r['guests'], SB_HEARD[$r['heard']][1] ?? '', $r['comments'], strtoupper($r['lang']),
-        ]), ';', '"', '');
-    }
-    exit;
-}
-
 // ------------------------------------------------------------ chiffres
 $yes = array_filter($rows, fn ($r) => $r['attending'] === 'yes');
 $no  = count($rows) - count($yes);
@@ -104,6 +73,115 @@ foreach ($invites as $i) {
     if ($i['state'] === 'pending') {
         $pendingLang[$i['lang']]++;
     }
+}
+
+// ------------------------------------------------------------ export Excel
+$export = (string) ($_GET['export'] ?? '');
+if ($export !== '' && SbXlsx::available()) {
+    $tz = new DateTimeZone(date_default_timezone_get());
+    $dt = function (string $t) use ($tz): ?DateTime {
+        if ($t === '') return null;
+        try { return (new DateTime($t))->setTimezone($tz); } catch (Exception) { return null; }
+    };
+    $nb = function (array $r): int {
+        $n = array_filter(array_map('trim', preg_split('/[,;\n]| and | et |&/i', $r['guests']) ?: []));
+        return max(1, count($n));
+    };
+    $H = fn (array $labels) => array_map(fn ($l) => [$l, SbXlsx::S_HEADER], $labels);
+    $stateStyle = ['pending' => SbXlsx::S_WAIT, 'yes' => SbXlsx::S_YES, 'no' => SbXlsx::S_NO, 'failed' => SbXlsx::S_FAIL];
+    $stateLabel = ['pending' => 'En attente', 'yes' => 'Oui', 'no' => 'Non', 'failed' => 'Échec d’envoi'];
+    $T = SbXlsx::S_TEXT;
+
+    $x = new SbXlsx();
+
+    // --- Résumé
+    $L = SbXlsx::S_LABEL; $B = SbXlsx::S_BIG;
+    $x->addSheet('Résumé', [
+        [['Two Cities, One Friendship', SbXlsx::S_TITLE]],
+        [['Vendredi 11 décembre 2026 · 18 h – 22 h · Glenview Mansion, 603 Edmonston Drive, Rockville, MD 20851', SbXlsx::S_MUTED]],
+        [['Fichier généré le ' . date('d/m/Y à H:i') . ' (heure de Washington)', SbXlsx::S_MUTED]],
+        [],
+        $H(['Indicateur', 'Nombre']),
+        [['Invitations envoyées', $L], [$sentN, $B]],
+        [['En attente de réponse', $L], [$count['pending'], $B]],
+        [['Réponses « oui »', $L], [count($yes), $B]],
+        [['Personnes attendues (estimation)', $L], [$people, $B]],
+        [['Réponses « non »', $L], [$no, $B]],
+        [['Échecs d’envoi', $L], [$count['failed'], $B]],
+        [['Réponses reçues au total', $L], [count($rows), $B]],
+        [],
+        [['Onglets : « Accueil » = liste des personnes attendues, à imprimer pour le jour J ;', SbXlsx::S_MUTED]],
+        [['« Invitations » = suivi des envois ; « Réponses » = détail des formulaires reçus.', SbXlsx::S_MUTED]],
+    ], ['widths' => [46, 14], 'heights' => [0 => 30, 4 => 24]]);
+
+    // --- Accueil : les « oui », par ordre alphabétique, avec une case à cocher
+    $guests = array_values($yes);
+    usort($guests, fn ($a, $b) => strcasecmp($a['name'], $b['name']));
+    $acc = [$H(['Présent', 'Nom', 'Participants', 'Personnes', 'Téléphone', 'E-mail'])];
+    foreach ($guests as $r) {
+        $acc[] = [['☐', SbXlsx::S_NUM], [$r['name'], SbXlsx::S_BOLD], [$r['guests'], $T], [$nb($r), SbXlsx::S_NUM],
+                  [$r['phone'], $T], [$r['email'], $T]];
+    }
+    $acc[] = [];
+    $acc[] = [['', 0], ['Total attendu (estimation)', SbXlsx::S_BOLD], ['', 0], [$people, SbXlsx::S_BIG]];
+    $x->addSheet('Accueil', $acc, ['widths' => [9, 28, 40, 11, 18, 32], 'freeze' => true, 'heights' => [0 => 26]]);
+
+    // --- Invitations
+    $inv = [$H(['État', 'Nom', 'E-mail', 'Langue', 'Invitée le', 'Envois', 'Dernier envoi', 'Réponse le'])];
+    foreach ($invites as $i) {
+        $inv[] = [[$stateLabel[$i['state']], $stateStyle[$i['state']]], [$i['name'], $T], [$i['email'], $T],
+                  [strtoupper($i['lang']), SbXlsx::S_NUM], [$dt($i['first']), SbXlsx::S_DATE], [$i['sends'], SbXlsx::S_NUM],
+                  [$dt($i['last']), SbXlsx::S_DATE], [$dt($i['answered']), SbXlsx::S_DATE]];
+    }
+    $x->addSheet('Invitations', $inv, ['widths' => [18, 26, 34, 9, 18, 9, 18, 18], 'freeze' => true, 'filter' => true, 'heights' => [0 => 26]]);
+
+    // --- Réponses : les « oui » d'abord, puis les « non », du plus récent au plus ancien
+    $resp = $rows;
+    usort($resp, fn ($a, $b) => [$a['attending'] !== 'yes', $b['updated']] <=> [$b['attending'] !== 'yes', $a['updated']]);
+    $rep = [$H(['Présence', 'Nom', 'E-mail', 'Téléphone', 'Personnes', 'Participants', 'Connu par', 'Commentaire', 'Langue', 'Reçu le'])];
+    foreach ($resp as $r) {
+        $isYes = $r['attending'] === 'yes';
+        $rep[] = [[$isYes ? 'Oui' : 'Non', $isYes ? SbXlsx::S_YES : SbXlsx::S_NO], [$r['name'], SbXlsx::S_BOLD], [$r['email'], $T],
+                  [$r['phone'], $T], [$isYes ? $nb($r) : 0, SbXlsx::S_NUM], [$r['guests'], $T],
+                  [SB_HEARD[$r['heard']][1] ?? '', $T], [$r['comments'], $T], [strtoupper($r['lang']), SbXlsx::S_NUM],
+                  [$dt($r['updated']), SbXlsx::S_DATE]];
+    }
+    $x->addSheet('Réponses', $rep, ['widths' => [11, 24, 32, 16, 11, 34, 14, 46, 9, 18], 'freeze' => true, 'filter' => true, 'heights' => [0 => 26]]);
+
+    $x->download('two-cities-invites-' . date('Y-m-d') . '.xlsx');
+}
+
+// repli si l'extension zip manque sur le serveur : anciens exports CSV
+if (($_GET['export'] ?? '') === 'invites') {
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="invitations-two-cities-' . date('Y-m-d') . '.csv"');
+    $out = fopen('php://output', 'w');
+    fwrite($out, "\xEF\xBB\xBF");
+    $safe = fn (string $v) => preg_match('/^[=+\-@\t\r]/', $v) ? "'" . $v : $v;
+    fputcsv($out, ['État', 'Nom', 'E-mail', 'Langue', 'Invitée le', 'Dernier envoi', 'Envois', 'Réponse le'], ';', '"', '');
+    foreach ($invites as $i) {
+        fputcsv($out, array_map($safe, [SB_STATE[$i['state']][0], $i['name'], $i['email'], strtoupper($i['lang']),
+            $xl($i['first']), $xl($i['last']), (string) $i['sends'], $xl($i['answered'])]), ';', '"', '');
+    }
+    exit;
+}
+
+// ------------------------------------------------------------ export CSV
+if (in_array($_GET['export'] ?? '', ['csv', 'xlsx'], true)) {
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="rsvp-two-cities-' . date('Y-m-d') . '.csv"');
+    $out = fopen('php://output', 'w');
+    fwrite($out, "\xEF\xBB\xBF");                       // accents corrects dans Excel
+    $safe = fn (string $v) => preg_match('/^[=+\-@\t\r]/', $v) ? "'" . $v : $v;  // anti-formules
+    fputcsv($out, ['Date', 'Présence', 'Nom', 'E-mail', 'Téléphone', 'Participants',
+                   'Connu par', 'Commentaire', 'Langue'], ';', '"', '');
+    foreach ($rows as $r) {
+        fputcsv($out, array_map($safe, [
+            $r['updated'], $r['attending'] === 'yes' ? 'Oui' : 'Non', $r['name'], $r['email'],
+            $r['phone'], $r['guests'], SB_HEARD[$r['heard']][1] ?? '', $r['comments'], strtoupper($r['lang']),
+        ]), ';', '"', '');
+    }
+    exit;
 }
 
 sb_page_top('Tableau de bord', 'list');
@@ -136,7 +214,7 @@ if ($flash) {
       <?php foreach (['en' => 'EN', 'fr' => 'FR'] as $lg => $lbl): if ($pendingLang[$lg]): ?>
         <a class="btn" href="send.php?relance=<?= $lg ?>">Relancer <?= $pendingLang[$lg] === 1 ? '1 personne' : $pendingLang[$lg] . ' personnes' ?> en attente (<?= $lbl ?>)</a>
       <?php endif; endforeach ?>
-      <?php if ($invites): ?><a class="btn ghost" href="?export=invites">Exporter (Excel)</a><?php endif ?>
+      <?php if ($invites || $rows): ?><a class="btn ghost" href="?export=xlsx">Télécharger le fichier Excel</a><?php endif ?>
     </div>
   </div>
 
@@ -176,7 +254,7 @@ if ($flash) {
 <section class="sect" id="reponses">
   <div class="head">
     <div><h2>Réponses reçues</h2><p class="muted">Tout ce qui a été envoyé depuis le formulaire de la page de l’événement.</p></div>
-    <?php if ($rows): ?><a class="btn ghost" href="?export=csv">Exporter (Excel)</a><?php endif ?>
+    <?php if ($invites || $rows): ?><a class="btn ghost" href="?export=xlsx">Télécharger le fichier Excel</a><?php endif ?>
   </div>
 <?php if (!$rows): ?>
   <div class="card empty"><p>Aucune réponse pour l’instant.</p>

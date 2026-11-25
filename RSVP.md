@@ -95,6 +95,22 @@ liste déjà remplie (une langue à la fois), l'objet préfixé par « Reminder:
 adresse que celle de l'invitation reste « en attente » : sa réponse apparaît
 quand même dans *Réponses reçues*.
 
+## Le fichier Excel
+
+Le bouton *Télécharger le fichier Excel* du tableau de bord produit un
+classeur de quatre onglets :
+
+| Onglet | Contenu |
+|---|---|
+| Résumé | les chiffres clés (envoyées, en attente, oui, personnes attendues, non, échecs) |
+| Accueil | les personnes attendues par ordre alphabétique, avec une case « Présent » : à imprimer pour l'entrée le jour J |
+| Invitations | chaque invitation, son état en couleur, ses dates d'envoi et de réponse |
+| Réponses | le détail des formulaires reçus, « oui » d'abord |
+
+En-têtes figés, filtres sur chaque colonne, vraies dates Excel (tri possible),
+et chaque onglet s'imprime sur une page de large. Si le serveur n'a pas
+l'extension PHP *zip*, le bouton retombe sur l'ancien export CSV.
+
 ## Où sont les données
 
 `/home/ciusatou/sublime-private/` :
