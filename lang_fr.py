@@ -638,6 +638,16 @@ CHROME = [
     ("<span>Official program</span>", "<span>Programme officiel</span>"),
     ("<span>End of the evening</span>", "<span>Fin de la soirée</span>"),
 
+    # --- bandeau événement de l'accueil ---
+    ('aria-label="Two Cities, One Friendship — event page"', 'aria-label="Two Cities, One Friendship — page de l\'événement"'),
+    ('alt="Korhogo &amp; Rockville, Working Together — Cultural Celebration, Uniting Communities"',
+     'alt="Korhogo &amp; Rockville, ensemble — célébration culturelle qui unit deux communautés"'),
+    (">Upcoming event<", ">Événement à venir<"),
+    ("Friday, December 11, 2026 · 6:00 – 10:00 PM · Glenview Mansion, Rockville, MD",
+     "Vendredi 11 décembre 2026 · 18 h – 22 h · Glenview Mansion, Rockville (Maryland)"),
+    ('#rsvp">RSVP <svg>', '#rsvp">Confirmer ma présence <svg>'),
+    (">Event details<", ">Voir l'événement<"),
+
     # --- formulaire RSVP intégré ---
     ('name="lang" value="en"', 'name="lang" value="fr"'),
     ("Will you join us?", "Serez-vous des nôtres ?"),

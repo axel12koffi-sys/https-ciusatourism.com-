@@ -678,3 +678,22 @@ p:last-child{margin-bottom:0}
 .evprog li:nth-child(2)::before{background:var(--orange)}
 .evprog b{color:var(--navy);font-weight:700}
 .evprog span{color:var(--ink)}
+
+/* ---------- bandeau événement en tête de l'accueil (temporaire) ---------- */
+.evbanner{background:var(--navy-900);color:#fff}
+.evbanner__img{display:block;line-height:0}
+.evbanner__img img{display:block;width:100%;height:auto;aspect-ratio:3/1;object-fit:cover;object-position:50% 40%;max-width:100%}
+@media(max-width:700px){.evbanner__img img{aspect-ratio:auto;height:210px}}
+.evbanner__bar{background:var(--navy);border-top:3px solid var(--orange)}
+.evbanner__in{max-width:var(--maxw);margin:0 auto;padding:16px var(--pad);display:flex;align-items:center;justify-content:space-between;gap:14px 28px;flex-wrap:wrap}
+.evbanner__txt{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;min-width:0}
+.evbanner__tag{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);background:var(--orange);border-radius:99px;padding:4px 10px;align-self:center}
+.evbanner__txt b{font-size:clamp(17px,2vw,21px);font-weight:700}
+.evbanner__when{color:rgba(255,255,255,.78);font-size:14.5px}
+.evbanner__cta{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.evbanner__more{color:#fff;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.evbanner__more:hover{color:var(--orange)}
+/* aucune page ne doit défiler à l'horizontale sur mobile (diapos du hero,
+   texte défilant, pied de page). « clip » et non « hidden » : l'en-tête
+   collant (position:sticky) continue de fonctionner. */
+html,body{overflow-x:clip}

@@ -293,6 +293,18 @@
   })();
 
   /* ---------------------------------------------------------
+     0. CONTENU DATÉ : un bloc data-until disparaît une fois la date
+        passée (bandeau d'événement de l'accueil), même si la page
+        n'a pas encore été régénérée.
+     --------------------------------------------------------- */
+  (function expire() {
+    $$('[data-until]').forEach(function (el) {
+      var end = Date.parse(el.getAttribute('data-until'));
+      if (!isNaN(end) && Date.now() >= end) el.parentNode.removeChild(el);
+    });
+  })();
+
+  /* ---------------------------------------------------------
      13. FORMULAIRE DE CONTACT (validation front)
      PHP : remplacer le setTimeout par un fetch('/api/contact.php')
      --------------------------------------------------------- */

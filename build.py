@@ -267,7 +267,32 @@ def phero(crumb, title, sub, img):
 PAGES = {}
 
 # ---------- INDEX ----------
+# ============================================================ BANDEAU ÉVÉNEMENT (accueil)
+# Affiché en tête de l'accueil jusqu'à la fin de l'événement, puis retiré
+# automatiquement : par le navigateur dès la date passée (data-until, voir
+# main.js), et par le générateur à la reconstruction suivante. Après la
+# date, l'accueil redevient celui par défaut sans aucune intervention.
+import datetime as _dt
+EVENT_END = _dt.datetime(2026, 12, 12, 5, 0, tzinfo=_dt.timezone.utc)   # 12 déc. 00 h à Rockville
+
+
+def event_banner():
+    if _dt.datetime.now(_dt.timezone.utc) >= EVENT_END:
+        return ''
+    return f"""
+<section class="evbanner" data-until="{EVENT_END.strftime('%Y-%m-%dT%H:%M:%SZ')}">
+  <a class="evbanner__img" href="event-two-cities.html" aria-label="Two Cities, One Friendship — event page">
+    <img src="assets/img/dest/event-banner.webp" width="1920" height="640" alt="Korhogo &amp; Rockville, Working Together — Cultural Celebration, Uniting Communities">
+  </a>
+  <div class="evbanner__bar"><div class="evbanner__in">
+    <p class="evbanner__txt"><span class="evbanner__tag">Upcoming event</span><b>Two Cities, One Friendship</b><span class="evbanner__when">Friday, December 11, 2026 · 6:00 – 10:00 PM · Glenview Mansion, Rockville, MD</span></p>
+    <div class="evbanner__cta"><a class="btn btn--go" href="event-two-cities.html#rsvp">RSVP <svg><use href="#arrow"/></svg></a><a class="evbanner__more" href="event-two-cities.html">Event details</a></div>
+  </div></div>
+</section>"""
+
+
 PAGES['index.html'] = ('Washington D.C. to Abidjan', 'Tailor-made trips to Côte d\'Ivoire for American travelers.', 'home', f"""
+{event_banner()}
 <section class="hero" id="top">
   <div class="hero__slides">
     <div class="hero__slide" style="background-image:url('assets/img/dest/hero-1.svg')"></div>
